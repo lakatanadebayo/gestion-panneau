@@ -27,63 +27,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class WebSecurityConfig {
 
-    /*private final CustomUserDetailsService customUserDetailsService;
-
-    private static final String[] SWAGGER_WHITELIST = {
-            "/swagger-ui/**",
-            "/swagger-ui.html",
-            "/v3/api-docs/**"
-    };
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-
-    @Bean
-    public DaoAuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider provider = new DaoAuthenticationProvider(customUserDetailsService);
-        provider.setPasswordEncoder(passwordEncoder());
-        return provider;
-    }
-
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-
-        http
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .csrf(csrf -> csrf.disable())
-                .authenticationProvider(authenticationProvider())
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(SWAGGER_WHITELIST).permitAll()
-                        .requestMatchers("/admin/**")
-                        .hasRole("ADMIN")
-                        .requestMatchers("/user/**")
-                        .hasAnyRole("USER", "ADMIN")
-                        .anyRequest()
-                        .authenticated()
-                )
-                .formLogin(Customizer.withDefaults())
-                .httpBasic(Customizer.withDefaults());
-
-        return http.build();
-    }
-
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:4200", "http://165.232.37.186"));
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(List.of("Origin", "Content-Type", "Accept", "Authorization"));
-        configuration.setAllowCredentials(true);
-
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-
-        return source;
-    }*/
-
     private final CustomUserDetailsService customUserDetailsService;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
