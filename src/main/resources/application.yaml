@@ -1,0 +1,26 @@
+spring:
+  application:
+    name: gestion-panneau
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/gestion_panneau
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:@irForce1}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+
+  profiles:
+    active: @activatedProperties@
+
+server:
+  port: 8080
+  servlet:
+    context-path: /gestion-panneau
+
+jwt:
+  secret: ${JWT_SECRET:JEMAPPELLEBAYOETJEVIENSDUBENINJESUISNELE18JUILLET1981ACOTONOUAUJOURDHUIJEVISAUCANADAJESUISANALYSTEPROGRAMMEURCHEZDESJARDINS}
+  expiration: ${JWT_EXPIRATION:3600000}

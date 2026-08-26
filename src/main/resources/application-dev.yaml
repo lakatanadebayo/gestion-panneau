@@ -1,0 +1,5 @@
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/gestion_panneau
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:@irForce1}
