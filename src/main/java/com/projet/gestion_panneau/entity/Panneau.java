@@ -27,6 +27,7 @@ public class Panneau implements Serializable, CreationAuditable, ModificationAud
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
+    private String emplacement;
     @OneToMany(mappedBy = "panneau")
     @Builder.Default
     private Set<LocationPanneau> locationPanneaux = new HashSet<>();
