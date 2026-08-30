@@ -16,6 +16,11 @@ public class PermissionInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
+
+        createPermission(ResourceEnum.CLIENT, ActionEnum.READ, "Lecture des clients");
+        createPermission(ResourceEnum.CLIENT, ActionEnum.WRITE, "Création ou modification des clients");
+        createPermission(ResourceEnum.CLIENT, ActionEnum.DELETE, "Suppression des clients");
+
         createPermission(ResourceEnum.LOCATION, ActionEnum.READ, "Lecture des locations de panneau");
         createPermission(ResourceEnum.LOCATION, ActionEnum.WRITE, "Création ou modification des locations de panneau");
         createPermission(ResourceEnum.LOCATION, ActionEnum.DELETE, "Suppression des locations de panneau");
