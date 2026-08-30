@@ -1,5 +1,6 @@
 package com.projet.gestion_panneau.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.projet.gestion_panneau.audit.*;
 import jakarta.persistence.*;
 import lombok.*;
@@ -29,6 +30,7 @@ public class Panneau implements Serializable, CreationAuditable, ModificationAud
     private UUID id;
     private String emplacement;
     @OneToMany(mappedBy = "panneau")
+    @JsonManagedReference
     @Builder.Default
     private Set<LocationPanneau> locationPanneaux = new HashSet<>();
     @Embedded

@@ -1,5 +1,6 @@
 package com.projet.gestion_panneau.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.projet.gestion_panneau.audit.*;
 import jakarta.persistence.*;
 import lombok.*;
@@ -35,6 +36,7 @@ public class Location implements Serializable, CreationAuditable, ModificationAu
     private BigDecimal montantLocation;
 
     @OneToMany(mappedBy = "location", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     @Builder.Default
     private Set<LocationPanneau> locationPanneaux = new HashSet<>();
 
