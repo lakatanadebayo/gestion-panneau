@@ -3,6 +3,7 @@ package com.projet.gestion_panneau.entity;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.projet.gestion_panneau.audit.*;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.FieldNameConstants;
 
@@ -21,8 +22,8 @@ import java.util.UUID;
 @AllArgsConstructor
 @Builder
 @FieldNameConstants
-@ToString(exclude = "locationPanneaux")
-@EqualsAndHashCode(exclude = "locationPanneaux")
+@ToString(exclude = {"client", "locationPanneaux"})
+@EqualsAndHashCode(exclude = {"client", "locationPanneaux"})
 public class Location implements Serializable, CreationAuditable, ModificationAuditable {
 
     private static final long serialVersionUID = 1L;
@@ -32,6 +33,11 @@ public class Location implements Serializable, CreationAuditable, ModificationAu
     private UUID id;
 
     private LocalDateTime dateLocation;
+
+    @ManyToOne
+    @JoinColumn(name = "id_client", nullable = false)
+    @NotNull(message = "Le client est obligatoire")
+    private Client client;
 
     private BigDecimal montantLocation;
 
