@@ -1,13 +1,7 @@
 package com.projet.gestion_panneau.controller;
 
 import com.projet.gestion_panneau.entity.Client;
-import com.projet.gestion_panneau.entity.State;
 import com.projet.gestion_panneau.repository.ClientRepository;
-import com.projet.gestion_panneau.repository.PaysRepository;
-import com.projet.gestion_panneau.repository.ClientRepository;
-import com.projet.gestion_panneau.repository.RoleRepository;
-import com.projet.gestion_panneau.util.CheckByUsername;
-import com.projet.gestion_panneau.util.LoginRequest;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -32,34 +26,19 @@ public class ClientController {
 
     private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
-    private final RoleRepository roleRepository;
     private final ClientRepository clientRepository;
-    private final PaysRepository paysRepository;
 
     @PreAuthorize("hasAuthority('CLIENT_WRITE')")
     @PostMapping( "/save")
     public ResponseEntity<?> save(@Valid @RequestBody Client client) throws IOException {
 
-        Optional<Client> optionalClient = clientRepository.findByUsername(client.getUsername());
+        Optional<Client> optionalClient = clientRepository.findByUser(client.getUser());
 
         if(!optionalClient.isPresent()){
             Client tempClient = Client.builder()
-                    .titre(client.getTitre())
-                    .nom(client.getNom())
-                    .prenom(client.getPrenom())
-                    .dateNaissance(client.getDateNaissance())
-                    .adresse(client.getAdresse())
-                    .pays(paysRepository.findById(client.getPays().getId()).get())
-                    .ville(client.getVille())
-                    .codePostal(client.getCodePostal())
-                    .email(client.getEmail())
-                    .telephone(client.getTelephone())
-                    .photo(client.getPhoto())
-                    .username(client.getUsername())
-                    .password(passwordEncoder.encode(client.getPassword()))
-                    .state(State.INACTIVE.getState())
+                    .user(client.getUser())
+                    .locations(client.getLocations())
                     .isDeleted(false)
-                    .roles(List.of(roleRepository.findByLibelle("ADMIN").get()))
                     .build();
             Client savedClient = clientRepository.save(tempClient);
             return new ResponseEntity<>(savedClient, HttpStatus.OK);
@@ -85,32 +64,6 @@ public class ClientController {
             return new ResponseEntity<>(client.get(), HttpStatus.OK);
         }
         return ResponseEntity.notFound().build();
-    }
-
-    @PreAuthorize("hasAuthority('CLIENT_READ')")
-    @PostMapping("/username")
-    public ResponseEntity<?> findByUsernameAndPassword(@RequestBody LoginRequest loginRequest){
-        Optional<Client> tempClient = clientRepository.findByUsername(loginRequest.getUsername());
-
-        if(tempClient.isPresent()){
-            if(passwordEncoder.matches(loginRequest.getPassword(), tempClient.get().getPassword())) {
-                return new ResponseEntity<>(tempClient.get(), HttpStatus.OK);
-            }else {
-                return ResponseEntity.noContent().build();
-            }
-        }
-        return ResponseEntity.notFound().build();
-    }
-
-    @PreAuthorize("hasAuthority('CLIENT_READ')")
-    @PostMapping("/check-username")
-    public ResponseEntity<Boolean> findByUsername(@RequestBody CheckByUsername checkByUsername){
-        Optional<Client> tempClient = clientRepository.findByUsername(checkByUsername.getUsername());
-        if(tempClient.isPresent()){
-            return new ResponseEntity<>(true, HttpStatus.OK);
-        }else {
-            return new ResponseEntity<>(false, HttpStatus.OK);
-        }
     }
 
     @PreAuthorize("hasAuthority('CLIENT_DELETE')")

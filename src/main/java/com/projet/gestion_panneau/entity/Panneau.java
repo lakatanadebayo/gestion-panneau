@@ -28,16 +28,27 @@ public class Panneau implements Serializable, CreationAuditable, ModificationAud
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
+
     private String emplacement;
+
     @OneToMany(mappedBy = "panneau")
     @JsonManagedReference
     @Builder.Default
     private Set<LocationPanneau> locationPanneaux = new HashSet<>();
+
+    @OneToOne(optional = false)
+    @JoinColumn(name = "id_proprietaire", nullable = false, unique = true)
+    private Proprietaire proprietaire;
+
     @Embedded
     private AuditCreation auditCreation;
+
     private String codeUtilisateurCreation;
+
     @Embedded
     private AuditModification auditModification;
+
     private String codeUtilisateurModification;
+
     private Boolean isDeleted;
 }
