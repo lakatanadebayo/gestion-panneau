@@ -1,24 +1,49 @@
 package com.projet.gestion_panneau.entity;
 
+import com.projet.gestion_panneau.audit.AuditCreation;
+import com.projet.gestion_panneau.audit.AuditModification;
+import com.projet.gestion_panneau.audit.CreationAuditable;
+import com.projet.gestion_panneau.audit.ModificationAuditable;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.experimental.SuperBuilder;
+import lombok.*;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
-@DiscriminatorValue("PROPRIETAIRE")
+@Table(name = "proprietaire")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@SuperBuilder
-public class Proprietaire extends User {
+@Builder
+@ToString(exclude = "user")
+@EqualsAndHashCode(exclude = "user")
+public class Proprietaire implements Serializable, CreationAuditable, ModificationAuditable {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
+
+    @OneToOne(optional = false)
+    @JoinColumn(name = "id_user", nullable = false, unique = true)
+    private User user;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "proprietaire_panneau", joinColumns = { @JoinColumn(name = "id_proprietaire") }, inverseJoinColumns = {@JoinColumn(name = "id_panneau") })
     private List<Panneau> panneaux = new ArrayList<Panneau>();
+
+    @Embedded
+    private AuditCreation auditCreation;
+
+    private String codeUtilisateurCreation;
+
+    @Embedded
+    private AuditModification auditModification;
+
+    private String codeUtilisateurModification;
+
+    private Boolean isDeleted;
 
 }
