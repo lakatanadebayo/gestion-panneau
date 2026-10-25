@@ -44,6 +44,10 @@ public class PermissionInitializer implements CommandLineRunner {
         createPermission(ResourceEnum.ROLE, ActionEnum.READ, "Lecture des rôles");
         createPermission(ResourceEnum.ROLE, ActionEnum.WRITE, "Création ou modification des rôles");
         createPermission(ResourceEnum.ROLE, ActionEnum.DELETE, "Suppression des rôles");
+
+        createPermission(ResourceEnum.USER, ActionEnum.READ, "Lecture des users");
+        createPermission(ResourceEnum.USER, ActionEnum.WRITE, "Création ou modification des users");
+        createPermission(ResourceEnum.USER, ActionEnum.DELETE, "Suppression des users");
     }
     private void createPermission(ResourceEnum resource, ActionEnum action, String libelle) {
         if (permissionRepository.findByResourceAndAction(resource, action).isEmpty()) {

@@ -7,5 +7,6 @@ public enum ResourceEnum {
     PANNEAU,
     PAYS,
     PROPRIETAIRE,
-    ROLE
+    ROLE,
+    USER
 }

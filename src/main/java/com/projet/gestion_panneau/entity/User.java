@@ -9,7 +9,6 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.FieldNameConstants;
-import lombok.experimental.SuperBuilder;
 
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -18,17 +17,15 @@ import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Table(name = "users")
-@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name = "type_user", discriminatorType = DiscriminatorType.STRING)
+@Table(name = "user")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@SuperBuilder
+@Builder
 @ToString(exclude = {"pays", "roles"})
 @FieldNameConstants
 @EqualsAndHashCode(exclude = {"pays", "roles"})
-public abstract class User implements Serializable, CreationAuditable, ModificationAuditable {
+public class User implements Serializable, CreationAuditable, ModificationAuditable {
 
     private static final long serialVersionUID = 1L;
 
