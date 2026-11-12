@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -86,19 +87,41 @@ public class UserController {
         return ResponseEntity.notFound().build();
     }
 
-    @PreAuthorize("hasAuthority('USER_READ')")
+    @PreAuthorize("hasAuthority('CLIENT_READ')")
     @PostMapping("/authentication")
-    public ResponseEntity<?> findByUsernameAndPassword(@RequestBody LoginRequest loginRequest){
-        Optional<User> tempUser = userRepository.findByUsername(loginRequest.getUsername());
+    public ResponseEntity<?> findByUsernameAndPassword(@Valid @RequestBody LoginRequest loginRequest) {
 
-        if(tempUser.isPresent()){
-            if(passwordEncoder.matches(loginRequest.getPassword(), tempUser.get().getPassword())) {
-                return new ResponseEntity<>(tempUser.get(), HttpStatus.OK);
-            }else {
-                return ResponseEntity.noContent().build();
-            }
+        // Recherche de l'utilisateur
+        Optional<User> optionalUser = userRepository.findByUsername(loginRequest.getUsername().trim());
+
+        // Vérification des identifiants
+        if (optionalUser.isEmpty()) {
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("status", 401, "message", "Identifiant ou mot de passe incorrect"));
         }
-        return ResponseEntity.notFound().build();
+
+        User user = optionalUser.get();
+
+        // Vérification du mot de passe
+        if (!passwordEncoder.matches(
+                loginRequest.getPassword(),
+                user.getPassword())) {
+
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("status", 401, "message", "Identifiant ou mot de passe incorrect"));
+        }
+
+        // Vérification de l'état du compte
+        if ("Inactive".equals(user.getState())) {
+            return ResponseEntity
+                    .status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("status", 403, "message", "Votre compte est désactivé"));
+        }
+
+        // Retourner l'entité User
+        return ResponseEntity.ok(user);
     }
 
     @PreAuthorize("hasAuthority('USER_READ')")
