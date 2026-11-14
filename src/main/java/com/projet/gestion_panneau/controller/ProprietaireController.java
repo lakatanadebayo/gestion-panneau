@@ -11,6 +11,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
 import java.util.List;
@@ -23,8 +24,6 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @SecurityRequirement(name = "bearerAuth")
 public class ProprietaireController {
-
-    private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     private final ProprietaireRepository proprietaireRepository;
 
@@ -43,10 +42,12 @@ public class ProprietaireController {
             Proprietaire savedProprietaire = proprietaireRepository.save(tempProprietaire);
             return new ResponseEntity<>(savedProprietaire, HttpStatus.OK);
         }
-        return ResponseEntity.noContent().build();
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body("Propriétaire introuvable.");
     }
 
-    @PreAuthorize("hasAuthority('PROPRIETAIRE_READ')")
+    @PreAuthorize("hasAuthority('CLIENT_READ')")
     @GetMapping("/all")
     public ResponseEntity<?> findAll(){
         List<Proprietaire> proprietaires = proprietaireRepository.findAll()

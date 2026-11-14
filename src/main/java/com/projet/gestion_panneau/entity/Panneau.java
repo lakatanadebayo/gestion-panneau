@@ -1,14 +1,11 @@
 package com.projet.gestion_panneau.entity;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.projet.gestion_panneau.audit.*;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldNameConstants;
 
 import java.io.Serializable;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -30,11 +27,6 @@ public class Panneau implements Serializable, CreationAuditable, ModificationAud
     private UUID id;
 
     private String emplacement;
-
-    @OneToMany(mappedBy = "panneau")
-    @JsonManagedReference
-    @Builder.Default
-    private Set<LocationPanneau> locationPanneaux = new HashSet<>();
 
     @OneToOne(optional = false)
     @JoinColumn(name = "id_proprietaire", nullable = false, unique = true)

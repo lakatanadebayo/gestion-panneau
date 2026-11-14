@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class PaysDTO {
+public class PaysDto {
     private String nom;
     private String code;
     private String isoCode;

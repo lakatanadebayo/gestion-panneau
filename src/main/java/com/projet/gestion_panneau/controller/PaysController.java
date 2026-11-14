@@ -1,6 +1,6 @@
 package com.projet.gestion_panneau.controller;
 
-import com.projet.gestion_panneau.dto.PaysDTO;
+import com.projet.gestion_panneau.dto.PaysDto;
 import com.projet.gestion_panneau.entity.Pays;
 import com.projet.gestion_panneau.repository.PaysRepository;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -33,7 +33,7 @@ public class PaysController {
 
     @PreAuthorize("hasAuthority('PAYS_WRITE')")
     @PostMapping("/save/all")
-    public ResponseEntity<?> saveAll(@Valid @RequestBody List<PaysDTO> dtoList) {
+    public ResponseEntity<?> saveAll(@Valid @RequestBody List<PaysDto> dtoList) {
 
         List<Pays> pays = dtoList.stream().map(dto ->
                 Pays.builder()
@@ -48,10 +48,10 @@ public class PaysController {
         return ResponseEntity.ok(paysRepository.saveAll(pays));
     }
 
-    @PreAuthorize("hasAuthority('PAYS_READ')")
+    @PreAuthorize("hasAuthority('CLIENT_READ')")
     @GetMapping("/all")
     public ResponseEntity<?> findAll(){
-        List<Pays> paysList = paysRepository.findAll();
+        List<Pays> paysList = paysRepository.findAllByOrderByNomAsc();
         return new ResponseEntity<>(paysList, HttpStatus.OK);
     }
 

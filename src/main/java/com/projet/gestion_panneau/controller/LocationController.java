@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,18 +22,19 @@ public class LocationController {
 
     private final LocationService locationService;
 
+    @PreAuthorize("hasAuthority('LOCATION_WRITE')")
     @PostMapping("/save")
     public ResponseEntity<Location> save(@Valid @RequestBody LocationRequest request) {
         return ResponseEntity.ok(locationService.save(request));
     }
 
-
+    @PreAuthorize("hasAuthority('CLIENT_READ')")
     @GetMapping("/all")
     public ResponseEntity<List<Location>> getAll() {
         return ResponseEntity.ok(locationService.getAll());
     }
 
-
+    @PreAuthorize("hasAuthority('LOCATION_READ')")
     @GetMapping("/{id}")
     public ResponseEntity<Location> getById(@PathVariable UUID id) {
         return locationService.getById(id)
@@ -40,7 +42,7 @@ public class LocationController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-
+    @PreAuthorize("hasAuthority('LOCATION_DELETE')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable UUID id) {
 

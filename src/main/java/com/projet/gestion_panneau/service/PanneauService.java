@@ -48,10 +48,6 @@ public class PanneauService {
 
         panneau.setIsDeleted(true);
 
-        if (panneau.getLocationPanneaux() != null) {
-            panneau.getLocationPanneaux().forEach(detail -> detail.setIsDeleted(true));
-        }
-
         panneauRepository.save(panneau);
 
         return true;

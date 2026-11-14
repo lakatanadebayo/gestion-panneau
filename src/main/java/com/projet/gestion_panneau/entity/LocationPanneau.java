@@ -1,6 +1,5 @@
 package com.projet.gestion_panneau.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.projet.gestion_panneau.audit.*;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.FutureOrPresent;
@@ -15,7 +14,7 @@ import java.util.UUID;
 
 @Entity
 @EntityListeners({AuditCreationListener.class, AuditModificationListener.class})
-@Table(uniqueConstraints = {@UniqueConstraint(name = "uk_location_panneau", columnNames = {"id_location", "id_panneau"})})
+@Table
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -33,12 +32,10 @@ public class LocationPanneau implements Serializable, CreationAuditable, Modific
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_location", nullable = false)
-    @JsonBackReference
     private Location location;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_panneau", nullable = false)
-    @JsonBackReference
     private Panneau panneau;
 
     @NotNull(message = "La date de début est obligatoire")

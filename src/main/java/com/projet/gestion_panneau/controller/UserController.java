@@ -1,7 +1,8 @@
 package com.projet.gestion_panneau.controller;
 
-import com.projet.gestion_panneau.entity.State;
-import com.projet.gestion_panneau.entity.User;
+import com.projet.gestion_panneau.audit.AuditCreation;
+import com.projet.gestion_panneau.dto.UserDto;
+import com.projet.gestion_panneau.entity.*;
 import com.projet.gestion_panneau.repository.PaysRepository;
 import com.projet.gestion_panneau.repository.RoleRepository;
 import com.projet.gestion_panneau.repository.UserRepository;
@@ -16,8 +17,10 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -36,40 +39,51 @@ public class UserController {
     private final RoleRepository roleRepository;
     private final UserRepository userRepository;
 
-    @PreAuthorize("hasAuthority('USER_WRITE')")
-    @PostMapping( "/save")
-    public ResponseEntity<?> save(@Valid @RequestBody User user) throws IOException {
+    @PreAuthorize("hasAuthority('CLIENT_WRITE')")
+    @PostMapping("/save")
+    public ResponseEntity<?> save(@Valid @RequestBody UserDto userDto) throws IOException {
 
-        Optional<User> optionalUser = userRepository.findByUsername(user.getUsername());
-
-        if(!optionalUser.isPresent()){
-            User tempUser = User.builder()
-                    .titre(user.getTitre())
-                    .nom(user.getNom())
-                    .prenom(user.getPrenom())
-                    .dateNaissance(user.getDateNaissance())
-                    .adresse(user.getAdresse())
-                    .pays(paysRepository.findById(user.getPays().getId()).get())
-                    .ville(user.getVille())
-                    .codePostal(user.getCodePostal())
-                    .email(user.getEmail())
-                    .telephone(user.getTelephone())
-                    .photo(user.getPhoto())
-                    .username(user.getUsername())
-                    .password(passwordEncoder.encode(user.getPassword()))
-                    .state(State.INACTIVE.getState())
-                    .isDeleted(false)
-                    .roles(List.of(roleRepository.findByLibelle("ADMIN").get()))
-                    .build();
-            User savedUser = userRepository.save(tempUser);
-            return new ResponseEntity<>(savedUser, HttpStatus.OK);
+        // Vérifier si le username existe déjà
+        if (userRepository.findByUsername(userDto.getUsername()).isPresent()) {
+            return ResponseEntity
+                    .status(HttpStatus.CONFLICT)
+                    .body("Ce nom d'utilisateur existe déjà.");
         }
-        return ResponseEntity.noContent().build();
+
+        // Récupérer le pays
+        Pays pays = paysRepository.findById(userDto.getIdPays())
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.BAD_REQUEST,
+                        "Le pays spécifié est introuvable."
+                ));
+
+        // Récupérer le rôle
+        Role role = roleRepository.findByLibelle("ADMIN")
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.INTERNAL_SERVER_ERROR,
+                        "Le rôle ADMIN n'est pas configuré."
+                ));
+
+        // Construire l'utilisateur
+        User user = userDtoToUser(userDto, pays);
+
+        user.setState(State.ACTIVE.getState());
+        user.setIsDeleted(false);
+        user.setRoles(List.of(role));
+        user.setAuditCreation(new AuditCreation(LocalDateTime.now()));
+        user.setCodeUtilisateurCreation("SYSTEM");
+
+        // Enregistrer
+        User savedUser = userRepository.save(user);
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(savedUser);
     }
 
-    @PreAuthorize("hasAuthority('USER_READ')")
+    @PreAuthorize("hasAuthority('CLIENT_READ')")
     @GetMapping("/all")
-    public ResponseEntity<?> findAll(){
+    public ResponseEntity<?> findAll() {
         List<User> users = userRepository.findAll()
                 .stream()
                 .filter(user -> !user.getIsDeleted())
@@ -79,12 +93,11 @@ public class UserController {
 
     @PreAuthorize("hasAuthority('USER_READ')")
     @GetMapping("/{id}")
-    public ResponseEntity<?> findById(@PathVariable("id") UUID id){
-        Optional<User> user = userRepository.findById(id);
-        if(user.isPresent()){
-            return new ResponseEntity<>(user.get(), HttpStatus.OK);
-        }
-        return ResponseEntity.notFound().build();
+    public ResponseEntity<User> findById(@PathVariable UUID id) {
+
+        return userRepository.findById(id)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PreAuthorize("hasAuthority('CLIENT_READ')")
@@ -124,26 +137,49 @@ public class UserController {
         return ResponseEntity.ok(user);
     }
 
-    @PreAuthorize("hasAuthority('USER_READ')")
+    @PreAuthorize("hasAuthority('CLIENT_READ')")
     @PostMapping("/check-username")
-    public ResponseEntity<Boolean> findByUsername(@RequestBody CheckByUsername checkByUsername){
+    public ResponseEntity<Boolean> findByUsername(@RequestBody CheckByUsername checkByUsername) {
         Optional<User> tempUser = userRepository.findByUsername(checkByUsername.getUsername());
-        if(tempUser.isPresent()){
+        if (tempUser.isPresent()) {
             return new ResponseEntity<>(true, HttpStatus.OK);
-        }else {
+        } else {
             return new ResponseEntity<>(false, HttpStatus.OK);
         }
     }
 
     @PreAuthorize("hasAuthority('USER_DELETE')")
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<?> update(@PathVariable("id") UUID id){
-        Optional<User> user = userRepository.findById(id);
-        if(user.isPresent()){
-            user.get().setIsDeleted(true);
-            userRepository.save(user.get());
-            return new ResponseEntity<>("User :"+id+" supprimé avec succès", HttpStatus.OK);
-        }
-        return ResponseEntity.notFound().build();
+    public ResponseEntity<Void> delete(@PathVariable UUID id) {
+
+        return userRepository.findById(id)
+                .map(user -> {
+                    user.setIsDeleted(true);
+                    userRepository.save(user);
+                    return ResponseEntity.noContent().<Void>build();
+                })
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    private User userDtoToUser(UserDto userDto, Pays pays) {
+
+        return User.builder()
+                .titre(userDto.getTitre())
+                .nom(userDto.getNom())
+                .prenom(userDto.getPrenom())
+                .dateNaissance(userDto.getDateNaissance())
+                .adresse(userDto.getAdresse())
+                .pays(pays)
+                .ville(userDto.getVille())
+                .codePostal(userDto.getCodePostal())
+                .email(userDto.getEmail())
+                .telephone(userDto.getTelephone())
+                .username(userDto.getUsername())
+                .photo(userDto.getPhoto())
+                .password(passwordEncoder.encode(userDto.getPassword()))
+                .state(userDto.getState())
+                .roles(userDto.getRoles())
+                .isDeleted(userDto.getIsDeleted())
+                .build();
     }
 }

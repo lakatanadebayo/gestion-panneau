@@ -24,8 +24,6 @@ import java.util.UUID;
 @SecurityRequirement(name = "bearerAuth")
 public class ClientController {
 
-    private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-
     private final ClientRepository clientRepository;
 
     @PreAuthorize("hasAuthority('CLIENT_WRITE')")
