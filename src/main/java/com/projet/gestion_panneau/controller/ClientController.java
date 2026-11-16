@@ -1,6 +1,7 @@
 package com.projet.gestion_panneau.controller;
 
 import com.projet.gestion_panneau.entity.Client;
+import com.projet.gestion_panneau.entity.User;
 import com.projet.gestion_panneau.repository.ClientRepository;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
@@ -8,8 +9,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -58,6 +57,16 @@ public class ClientController {
     @GetMapping("/{id}")
     public ResponseEntity<?> findById(@PathVariable("id") UUID id){
         Optional<Client> client = clientRepository.findById(id);
+        if(client.isPresent()){
+            return new ResponseEntity<>(client.get(), HttpStatus.OK);
+        }
+        return ResponseEntity.notFound().build();
+    }
+
+    @PreAuthorize("hasAuthority('CLIENT_READ')")
+    @PostMapping("/findbyuser")
+    public ResponseEntity<?> findByuser(@Valid @RequestBody User user){
+        Optional<Client> client = clientRepository.findByUser(user);
         if(client.isPresent()){
             return new ResponseEntity<>(client.get(), HttpStatus.OK);
         }

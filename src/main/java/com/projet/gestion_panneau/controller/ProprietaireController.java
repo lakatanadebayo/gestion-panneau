@@ -1,6 +1,7 @@
 package com.projet.gestion_panneau.controller;
 
 import com.projet.gestion_panneau.entity.Proprietaire;
+import com.projet.gestion_panneau.entity.User;
 import com.projet.gestion_panneau.repository.ProprietaireRepository;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
@@ -8,10 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
 import java.util.List;
@@ -61,6 +59,16 @@ public class ProprietaireController {
     @GetMapping("/{id}")
     public ResponseEntity<?> findById(@PathVariable("id") UUID id){
         Optional<Proprietaire> proprietaire = proprietaireRepository.findById(id);
+        if(proprietaire.isPresent()){
+            return new ResponseEntity<>(proprietaire.get(), HttpStatus.OK);
+        }
+        return ResponseEntity.notFound().build();
+    }
+
+    @PreAuthorize("hasAuthority('CLIENT_READ')")
+    @PostMapping("/findbyuser")
+    public ResponseEntity<?> findByuser(@Valid @RequestBody User user){
+        Optional<Proprietaire> proprietaire = proprietaireRepository.findByUser(user);
         if(proprietaire.isPresent()){
             return new ResponseEntity<>(proprietaire.get(), HttpStatus.OK);
         }

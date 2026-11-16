@@ -1,8 +1,8 @@
 package com.projet.gestion_panneau.controller;
 
+import com.projet.gestion_panneau.dto.LocationDto;
 import com.projet.gestion_panneau.entity.Location;
 import com.projet.gestion_panneau.service.LocationService;
-import com.projet.gestion_panneau.util.LocationRequest;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -24,8 +24,8 @@ public class LocationController {
 
     @PreAuthorize("hasAuthority('LOCATION_WRITE')")
     @PostMapping("/save")
-    public ResponseEntity<Location> save(@Valid @RequestBody LocationRequest request) {
-        return ResponseEntity.ok(locationService.save(request));
+    public ResponseEntity<Location> save(@Valid @RequestBody LocationDto locationDto) {
+        return ResponseEntity.ok(locationService.save(locationDto));
     }
 
     @PreAuthorize("hasAuthority('CLIENT_READ')")
@@ -45,11 +45,7 @@ public class LocationController {
     @PreAuthorize("hasAuthority('LOCATION_DELETE')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable UUID id) {
-
-        if (!locationService.delete(id)) {
-            return ResponseEntity.notFound().build();
-        }
-
+        locationService.delete(id);
         return ResponseEntity.noContent().build();
     }
 }

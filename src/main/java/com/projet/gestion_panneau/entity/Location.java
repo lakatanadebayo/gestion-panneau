@@ -1,6 +1,5 @@
 package com.projet.gestion_panneau.entity;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.projet.gestion_panneau.audit.*;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -10,8 +9,7 @@ import lombok.experimental.FieldNameConstants;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -41,11 +39,6 @@ public class Location implements Serializable, CreationAuditable, ModificationAu
 
     private BigDecimal montantLocation;
 
-    @OneToMany(mappedBy = "location", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference
-    @Builder.Default
-    private Set<LocationPanneau> locationPanneaux = new HashSet<>();
-
     @Embedded
     private AuditCreation auditCreation;
 
@@ -58,17 +51,6 @@ public class Location implements Serializable, CreationAuditable, ModificationAu
 
     private Boolean isDeleted;
 
-    public void addLocationPanneau(LocationPanneau locationPanneau) {
-        if (locationPanneau != null) {
-            locationPanneaux.add(locationPanneau);
-            locationPanneau.setLocation(this);
-        }
-    }
-
-    public void removeLocationPanneau(LocationPanneau locationPanneau) {
-        if (locationPanneau != null) {
-            locationPanneaux.remove(locationPanneau);
-            locationPanneau.setLocation(null);
-        }
-    }
+    @OneToMany(mappedBy = "location")
+    private List<LocationPanneau> locationPanneaux;
 }
