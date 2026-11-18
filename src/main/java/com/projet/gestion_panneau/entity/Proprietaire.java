@@ -8,8 +8,6 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -30,10 +28,6 @@ public class Proprietaire implements Serializable, CreationAuditable, Modificati
     @JoinColumn(name = "id_user", nullable = false, unique = true)
     private User user;
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "proprietaire_panneau", joinColumns = { @JoinColumn(name = "id_proprietaire") }, inverseJoinColumns = {@JoinColumn(name = "id_panneau") })
-    private List<Panneau> panneaux = new ArrayList<Panneau>();
-
     @Embedded
     private AuditCreation auditCreation;
 
@@ -43,6 +37,8 @@ public class Proprietaire implements Serializable, CreationAuditable, Modificati
     private AuditModification auditModification;
 
     private String codeUtilisateurModification;
+
+    private String state;
 
     private Boolean isDeleted;
 

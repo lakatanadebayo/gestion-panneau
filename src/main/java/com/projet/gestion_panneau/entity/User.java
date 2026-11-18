@@ -50,7 +50,7 @@ public class User implements Serializable, CreationAuditable, ModificationAudita
     private String photo;
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
-    private String state = State.INACTIVE.getState();
+    private String state;
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "user_role", joinColumns = { @JoinColumn(name = "id_user") }, inverseJoinColumns = {@JoinColumn(name = "id_role") })
     private List<Role> roles = new ArrayList<Role>();
@@ -60,5 +60,7 @@ public class User implements Serializable, CreationAuditable, ModificationAudita
     @Embedded
     private AuditModification auditModification;
     private String codeUtilisateurModification;
+    private Boolean ajoutCompteClient;
+    private Boolean ajouteCompteProprietaire;
     private Boolean isDeleted;
 }

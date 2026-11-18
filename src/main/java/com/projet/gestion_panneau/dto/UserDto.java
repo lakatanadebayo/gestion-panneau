@@ -1,9 +1,6 @@
 package com.projet.gestion_panneau.dto;
 
-import com.projet.gestion_panneau.audit.AuditCreation;
-import com.projet.gestion_panneau.audit.AuditModification;
 import com.projet.gestion_panneau.entity.Role;
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -35,5 +32,7 @@ public class UserDto {
     private String password;
     private String state;
     private List<Role> roles = new ArrayList<Role>();
+    private Boolean ajoutCompteClient;
+    private Boolean ajouteCompteProprietaire;
     private Boolean isDeleted;
 }

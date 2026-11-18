@@ -34,7 +34,6 @@ public class ClientController {
         if(!optionalClient.isPresent()){
             Client tempClient = Client.builder()
                     .user(client.getUser())
-                    .locations(client.getLocations())
                     .isDeleted(false)
                     .build();
             Client savedClient = clientRepository.save(tempClient);
