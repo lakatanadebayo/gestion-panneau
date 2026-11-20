@@ -1,8 +1,8 @@
 package com.projet.gestion_panneau.controller;
 
 import com.projet.gestion_panneau.entity.Client;
-import com.projet.gestion_panneau.entity.User;
 import com.projet.gestion_panneau.repository.ClientRepository;
+import com.projet.gestion_panneau.util.UserId;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -29,7 +30,7 @@ public class ClientController {
     @PostMapping( "/save")
     public ResponseEntity<?> save(@Valid @RequestBody Client client) throws IOException {
 
-        Optional<Client> optionalClient = clientRepository.findByUser(client.getUser());
+        Optional<Client> optionalClient = clientRepository.findByUserId(client.getUser().getId());
 
         if(!optionalClient.isPresent()){
             Client tempClient = Client.builder()
@@ -64,12 +65,14 @@ public class ClientController {
 
     @PreAuthorize("hasAuthority('CLIENT_READ')")
     @PostMapping("/findbyuser")
-    public ResponseEntity<?> findByuser(@Valid @RequestBody User user){
-        Optional<Client> client = clientRepository.findByUser(user);
+    public ResponseEntity<?> findByuser(@Valid @RequestBody UserId userId){
+        Optional<Client> client = clientRepository.findByUserId(userId.getUserId());
         if(client.isPresent()){
             return new ResponseEntity<>(client.get(), HttpStatus.OK);
         }
-        return ResponseEntity.notFound().build();
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(Map.of("status", 404, "message", "Utilisateur sans compte client"));
     }
 
     @PreAuthorize("hasAuthority('CLIENT_DELETE')")

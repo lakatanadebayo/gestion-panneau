@@ -1,8 +1,8 @@
 package com.projet.gestion_panneau.controller;
 
 import com.projet.gestion_panneau.entity.Proprietaire;
-import com.projet.gestion_panneau.entity.User;
 import com.projet.gestion_panneau.repository.ProprietaireRepository;
+import com.projet.gestion_panneau.util.UserId;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -29,12 +30,11 @@ public class ProprietaireController {
     @PostMapping( "/save")
     public ResponseEntity<?> save(@Valid @RequestBody Proprietaire proprietaire) throws IOException {
 
-        Optional<Proprietaire> optionalProprietaire = proprietaireRepository.findByUser(proprietaire.getUser());
+        Optional<Proprietaire> optionalProprietaire = proprietaireRepository.findByUserId(proprietaire.getUser().getId());
 
         if(!optionalProprietaire.isPresent()){
             Proprietaire tempProprietaire = Proprietaire.builder()
                     .user(proprietaire.getUser())
-                    .panneaux(proprietaire.getPanneaux())
                     .isDeleted(false)
                     .build();
             Proprietaire savedProprietaire = proprietaireRepository.save(tempProprietaire);
@@ -67,12 +67,14 @@ public class ProprietaireController {
 
     @PreAuthorize("hasAuthority('CLIENT_READ')")
     @PostMapping("/findbyuser")
-    public ResponseEntity<?> findByuser(@Valid @RequestBody User user){
-        Optional<Proprietaire> proprietaire = proprietaireRepository.findByUser(user);
+    public ResponseEntity<?> findByuser(@Valid @RequestBody UserId userId){
+        Optional<Proprietaire> proprietaire = proprietaireRepository.findByUserId(userId.getUserId());
         if(proprietaire.isPresent()){
             return new ResponseEntity<>(proprietaire.get(), HttpStatus.OK);
         }
-        return ResponseEntity.notFound().build();
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(Map.of("status", 404, "message", "Utilisateur sans compte propriétaire"));
     }
 
     @PreAuthorize("hasAuthority('PROPRIETAIRE_DELETE')")
