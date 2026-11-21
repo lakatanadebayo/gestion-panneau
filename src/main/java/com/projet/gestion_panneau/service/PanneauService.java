@@ -57,7 +57,11 @@ public class PanneauService {
         return !panneauRepository.estPanneauDisponible(panneauId, dateFin, dateDebut);
     }
 
-    public List<Panneau> getPanneauxDisponiblesSelonEmplacement(String emplacement, LocalDateTime dateDebut, LocalDateTime dateFin) {
-        return panneauRepository.panneauxDisponiblesSelonEmplacement(emplacement, dateDebut, dateFin);
+    public List<Panneau> getPanneauxDisponiblesParAdresse(String adresse, LocalDateTime dateDebut, LocalDateTime dateFin) {
+        return panneauRepository.panneauxDisponiblesParAdresse(adresse, dateDebut, dateFin);
+    }
+
+    public List<Panneau> getPanneauxDisponiblesParVille(String ville, LocalDateTime dateDebut, LocalDateTime dateFin) {
+        return panneauRepository.panneauxDisponiblesParVille(ville, dateDebut, dateFin);
     }
 }

@@ -22,7 +22,7 @@ public interface PanneauRepository extends JpaRepository<Panneau, UUID> {
     @Query("""
                 SELECT p
                 FROM Panneau p
-                WHERE ( :emplacement IS NULL OR :emplacement = '' OR p.emplacement = :emplacement )
+                WHERE ( :adresse IS NULL OR :adresse = '' OR p.adresse = :adresse )
                 AND NOT EXISTS (
                     SELECT lp
                     FROM LocationPanneau lp
@@ -33,5 +33,21 @@ public interface PanneauRepository extends JpaRepository<Panneau, UUID> {
                 )
                 AND p.isDeleted = false
             """)
-    List<Panneau> panneauxDisponiblesSelonEmplacement(@Param("emplacement") String emplacement, @Param("dateDebut") LocalDateTime dateDebut, @Param("dateFin") LocalDateTime dateFin);
+    List<Panneau> panneauxDisponiblesParAdresse(@Param("adresse") String adresse, @Param("dateDebut") LocalDateTime dateDebut, @Param("dateFin") LocalDateTime dateFin);
+
+    @Query("""
+                SELECT p
+                FROM Panneau p
+                WHERE ( :ville IS NULL OR :ville = '' OR p.ville = :ville )
+                AND NOT EXISTS (
+                    SELECT lp
+                    FROM LocationPanneau lp
+                    WHERE lp.panneau = p
+                    AND lp.isDeleted = false
+                    AND :dateDebut < lp.dateFin
+                    AND :dateFin > lp.dateDebut
+                )
+                AND p.isDeleted = false
+            """)
+    List<Panneau> panneauxDisponiblesParVille(@Param("ville") String ville, @Param("dateDebut") LocalDateTime dateDebut, @Param("dateFin") LocalDateTime dateFin);
 }

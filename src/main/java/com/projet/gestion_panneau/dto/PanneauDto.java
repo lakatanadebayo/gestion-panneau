@@ -16,7 +16,9 @@ import java.util.UUID;
 @Builder
 public class PanneauDto {
     private UUID id;
-    private String emplacement;
+    private String adresse;
+    private String ville;
+    private UUID idPays;
     private UUID idProprietaire;
     private AuditCreation auditCreation;
     private String codeUtilisateurCreation;

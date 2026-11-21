@@ -26,7 +26,13 @@ public class Panneau implements Serializable, CreationAuditable, ModificationAud
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    private String emplacement;
+    private String adresse;
+
+    private String ville;
+
+    @OneToOne(optional = false)
+    @JoinColumn(name = "id_pays", nullable = false, unique = true)
+    private Pays pays;
 
     @OneToOne(optional = false)
     @JoinColumn(name = "id_proprietaire", nullable = false, unique = true)

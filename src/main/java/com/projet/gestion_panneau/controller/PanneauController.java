@@ -3,7 +3,9 @@ package com.projet.gestion_panneau.controller;
 import com.projet.gestion_panneau.audit.AuditCreation;
 import com.projet.gestion_panneau.dto.PanneauDto;
 import com.projet.gestion_panneau.entity.Panneau;
+import com.projet.gestion_panneau.entity.Pays;
 import com.projet.gestion_panneau.entity.Proprietaire;
+import com.projet.gestion_panneau.repository.PaysRepository;
 import com.projet.gestion_panneau.repository.ProprietaireRepository;
 import com.projet.gestion_panneau.service.PanneauService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -27,16 +29,26 @@ import java.util.UUID;
 public class PanneauController {
 
     private final PanneauService panneauService;
+    private final PaysRepository paysRepository;
     private final ProprietaireRepository proprietaireRepository;
+
     @PreAuthorize("hasAuthority('PANNEAU_WRITE')")
     @PostMapping("/save")
     public ResponseEntity<Panneau> save(@Valid @RequestBody PanneauDto panneauDto) {
+
+        Pays pays = paysRepository.findById(panneauDto.getIdPays())
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.BAD_REQUEST,
+                        "Le pays spécifié est introuvable."
+                ));
 
         Proprietaire proprietaire = proprietaireRepository.findById(panneauDto.getIdProprietaire())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Propriétaire introuvable"));
 
         Panneau panneau = Panneau.builder()
-                .emplacement(panneauDto.getEmplacement())
+                .adresse(panneauDto.getAdresse())
+                .ville(panneauDto.getVille())
+                .pays(pays)
                 .proprietaire(proprietaire)
                 .auditCreation(new AuditCreation(LocalDateTime.now()))
                 .codeUtilisateurCreation("SYSTEM")
